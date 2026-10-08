@@ -1,0 +1,22 @@
+---
+title: "Edo's Powerpoint Slides"
+subtitle: "Inspired by presentation delivered on Wednesday 30 September, 2026."
+author: "psuedonym"
+format: pptx
+---
+
+
+# I looked for something similar in Indonesia
+
+![](../figures/cross-section-drawing-Borobudur-Temple.jpg)
+
+<!-- from https://www.mdpi.com/2072-4292/13/24/5024 -->
+
+# I looked for something similar in Indonesia
+
+![](../figures/Borobudur_mandala.png) <!-- From https://curiosmos.com/3-things-you-should-know-about-borobudur-indonesias-ancient-step-pyramid/ -->
+
+# The Iron Triangle of Project Management
+
+![Translates "Strategy into Execution"](../figures/IronTriangle.jpg) <!-- from https://www.teamgantt.com/resources/articles/triple-constraint-project-management -->
+

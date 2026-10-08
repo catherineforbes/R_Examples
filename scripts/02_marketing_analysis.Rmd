@@ -1,0 +1,131 @@
+---
+title: "Marketing Expenditure & Sales Analysis"
+author: "Catherine Forbes (with the help of Gemini)"
+date: "`r Sys.Date()`"
+output:
+  pdf_document:
+    toc: false
+    number_sections: true
+  ioslides_presentation:
+    widescreen: true
+    smaller: true
+  html_document:
+    toc: false
+    df_print: paged
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(eval=TRUE, echo = FALSE, message = FALSE, error = FALSE, warning = FALSE)
+library(tidyverse)
+library(knitr)
+library(broom)
+```
+
+# Introduction
+
+This document demonstrates how to import data from a `.csv` file, perform a statistical analysis, and present findings using **RMarkdown**.
+
+
+
+
+# Data Import & Preparation
+
+First, import sales data from the file named `marketing_data.csv`, located in the `data` subdirectory, using `read_csv()`. Then, preview top records to be sure they look as you expect:
+
+
+```{r import-data}
+# Import CSV data
+marketing_data <- read_csv("../data/marketing_data.csv")
+
+# Notice the two dots preceding the forward slash above.
+# Unlike for .R script files, the default working directory of .Rmd files is the current directory (here "scripts"). The two dots first tell R to go up one level, then look for the 'data' directory, then look for the 'marketing_data.csv' file.
+
+# Preview top records
+head(marketing_data)
+```
+
+
+# Statistical Analysis
+
+## Summary Statistics
+
+Next, compute basic descriptive statistics for ad expenditure and sales, across regions.
+
+```{r summary-stats}
+marketing_data %>%
+  summarise(
+    Avg_Ad_Budget = mean(Ad_Budget_1k),
+    SD_Ad_Budget  = sd(Ad_Budget_1k),
+    Avg_Sales     = mean(Sales_1k),
+    SD_Sales      = sd(Sales_1k)
+  ) %>%
+  kable(caption = "Summary Statistics of Marketing Data ($1,000s)")
+```
+
+## Regression Modeling
+
+Fit a simple linear regression model to quantify how marketing expenditure impacts sales:
+
+$$ \text{Sales} = \beta_0 + \beta_1 (\text{Ad\_Budget}) + \epsilon $$
+
+```{r linear-model}
+model <- lm(Sales_1k ~ Ad_Budget_1k, data = marketing_data)
+summary(model)
+```
+
+### A quest to improve the way the output appears
+
+You might notice that the output is not very neat. This is the 'standard' output given from the `lm()` function. Newer packages can extract the information from any `lm` function output - here the `broom` package functions `tidy` and `glance` are used, together with the `kable` function, to obtain improved formatting of the same output. 
+
+```{r}
+# broom functions
+
+tidy(model) |> kable(digits=4, caption = "Estimated coefficients from linear model fit to marketing data.")
+
+glance(model)[c(1:6,11)] |> kable(digits=4, caption = "Model fit statistics, from estimated linear model.")
+
+```
+
+With that done, let's get back to understanding the fitted model!
+
+
+# Visualization
+
+Next, plot the data together with the estimated linear model. It uses the \textsf{ggplot2} package, which is included with the \textsf{tidyverse} package. 
+
+```{r scatter-plot, fig.height=4, fig.width=6, fig.cap="Scatter plot of Ad Budget vs. Sales Revenue"}
+ggplot(marketing_data, aes(x = Ad_Budget_1k, y = Sales_1k)) +
+  geom_point(color = "#0073C2", size = 3) +
+  geom_smooth(method = "lm", se = TRUE, color = "#CD534C") +
+  theme_minimal() +
+  labs(
+    title = "Advertising Budget vs. Sales Performance",
+    x = "Ad Budget ($1,000s)",
+    y = "Sales Revenue ($1,000s)"
+  )
+```
+
+
+
+# Discussion & Conclusions
+
+- **Relationship Strength**: The simple linear regression indicates a strong positive association between advertising spend and store revenue.
+
+- **Effect Size**: The slope estimate ($\beta_1 \approx 5.2$) suggests that each additional \$1,000 spend in advertising generates approximately ('on-average') \$5,200 in revenue.
+
+- **Next Steps**: Expand dataset across additional quarters and run a multiple regression including regional fixed effects.
+
+# Additional Notes
+
+1. You will need to install the \textsf{knitr}, \textsf{tidyverse} and \textsf{broom} packages (if not already installed) before running this code. You can find all of these packages on CRAN, and install them via the **Packages** tab.
+
+2. The section title ("1 Introduction") appears in larger font and in bold. This is the default setting, and is achieved by typing \# before the word "Introduction" in the .Rmd file. 
+
+3. The subsection title ("3.1 Summary Statistics") appears is large, bold font, though it is not as large as a section title. This is achieved by typing \#\# before the words "Summary Statistics" in the .Rmd file.
+
+4. The word "RMarkdown" above is shown in bold font. This was achieved by inserting two asterisks (\*\*) before and after the work "RMarkdown". 
+
+5. The table printed under 2. Data Import \& Preparation was produce by simply asking \textsf{R}to print the relevant data frame. But this is not very 'pretty'. A better option is to use the \textsf{kable} function, which as used to plot Table 1 in Section 3.1, for example.
+
+6. To compile this .Rmd file, click on the \textsf{Knit} icon, and select **Knit to pdf**. You can also try the other output files, i.e. **Knit to HTML** (can be viewed in, e.g., a Google Chrome browser), or **Knit to Word**. (It may be best to avoid **Knit to ioslides_presentation**, as we haven't added any formatting for this type of output.)
+
+
